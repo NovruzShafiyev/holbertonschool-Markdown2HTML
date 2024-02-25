@@ -21,22 +21,33 @@ def convert_lists(markdown_lines):
     in_list = False
     for line in markdown_lines:
         line = line.strip()
-        if line.startswith('*'):
+        if line.startswith('*') or line.startswith('-'):
             if not in_list:
                 html_lines.append('<ul>\n')
                 in_list = True
-            line = line.lstrip('*').strip()
+            line = line.lstrip('*-').strip()
             html_lines.append(f'    <li>{line}</li>\n')
-        elif line.startswith('#'):
-            if in_list:
-                html_lines.append('</ul>\n')
-                in_list = False
-            html_lines.append(convert_heading(line))
+        elif line.startswith('1.') or line.startswith('2.') or line.startswith('3.') \
+                or line.startswith('4.') or line.startswith('5.') or line.startswith('6.') or line.startswith('7.') or line.startswith('8.') or line.startswith('9.'):
+            if not in_list:
+                html_lines.append('<ol>\n')
+                in_list = True
+            line = line.split('.')
+            line = line[1].strip()
+            html_lines.append(f'    <li>{line}</li>\n')
         else:
             if in_list:
-                html_lines.append('</ul>\n')
-                in_list = False
-            html_lines.append(line)
+                if line.startswith('#'):
+                    html_lines.append('</ul>\n')
+                    in_list = False
+                elif line.startswith('1.') or line.startswith('2.') or line.startswith('3.') \
+                        or line.startswith('4.') or line.startswith('5.') or line.startswith('6.') or line.startswith('7.') or line.startswith('8.') or line.startswith('9.'):
+                    html_lines.append('</ul>\n')
+                    in_list = False
+                else:
+                    pass
+            html_lines.append(convert_heading(line))
+
     if in_list:
         html_lines.append('</ul>\n')
     return html_lines
