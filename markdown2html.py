@@ -15,18 +15,23 @@ def convert_heading(line):
         return line
 
 
-def convert_unordered_list(markdown_lines):
-    ''' Convert Markdown unordered list to HTML '''
+def convert_lists(markdown_lines):
+    ''' Convert Markdown lists to HTML '''
     html_lines = []
     in_list = False
     for line in markdown_lines:
         line = line.strip()
-        if line.startswith('-'):
+        if line.startswith('*'):
             if not in_list:
                 html_lines.append('<ul>\n')
                 in_list = True
-            line = line.lstrip('-').strip()
+            line = line.lstrip('*').strip()
             html_lines.append(f'    <li>{line}</li>\n')
+        elif line.startswith('#'):
+            if in_list:
+                html_lines.append('</ul>\n')
+                in_list = False
+            html_lines.append(convert_heading(line))
         else:
             if in_list:
                 html_lines.append('</ul>\n')
@@ -51,8 +56,7 @@ if __name__ == "__main__":
     with open(sys.argv[1], 'r') as markdown_file:
         markdown_lines = markdown_file.readlines()
 
-    html_lines_heading = [convert_heading(line) for line in markdown_lines]
-    html_lines = convert_unordered_list(html_lines_heading)
+    html_lines = convert_lists(markdown_lines)
 
     # Write HTML to output file
     with open(sys.argv[2], 'w') as html_file:
