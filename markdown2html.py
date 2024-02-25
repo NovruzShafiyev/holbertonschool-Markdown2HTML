@@ -16,40 +16,29 @@ def convert_heading(line):
 
 
 def convert_lists(markdown_lines):
-    ''' Convert Markdown lists to HTML '''
+    ''' Convert Markdown ordered lists to HTML '''
     html_lines = []
     in_list = False
     for line in markdown_lines:
         line = line.strip()
-        if line.startswith('*') or line.startswith('-'):
-            if not in_list:
-                html_lines.append('<ul>\n')
-                in_list = True
-            line = line.lstrip('*-').strip()
-            html_lines.append(f'    <li>{line}</li>\n')
-        elif line.startswith('1.') or line.startswith('2.') or line.startswith('3.') \
-                or line.startswith('4.') or line.startswith('5.') or line.startswith('6.') or line.startswith('7.') or line.startswith('8.') or line.startswith('9.'):
+        if line.startswith('*'):
             if not in_list:
                 html_lines.append('<ol>\n')
                 in_list = True
-            line = line.split('.')
-            line = line[1].strip()
+            line = line.lstrip('*').strip()
             html_lines.append(f'    <li>{line}</li>\n')
+        elif line.startswith('#'):
+            if in_list:
+                html_lines.append('</ol>\n')
+                in_list = False
+            html_lines.append(convert_heading(line))
         else:
             if in_list:
-                if line.startswith('#'):
-                    html_lines.append('</ul>\n')
-                    in_list = False
-                elif line.startswith('1.') or line.startswith('2.') or line.startswith('3.') \
-                        or line.startswith('4.') or line.startswith('5.') or line.startswith('6.') or line.startswith('7.') or line.startswith('8.') or line.startswith('9.'):
-                    html_lines.append('</ul>\n')
-                    in_list = False
-                else:
-                    pass
-            html_lines.append(convert_heading(line))
-
+                html_lines.append('</ol>\n')
+                in_list = False
+            html_lines.append(line)
     if in_list:
-        html_lines.append('</ul>\n')
+        html_lines.append('</ol>\n')
     return html_lines
 
 
